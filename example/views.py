@@ -15,18 +15,26 @@ def highlight_sql(sql):
 init_query = '''
 Blog.objects.alias(entries=Count("entry")).annotate(entries=F("entries"))
 '''
+current_dir = os.path.dirname(__file__)
+models_path = os.path.join(current_dir, 'models.py')
+with open(models_path, 'r') as f:
+    models_content = f.read()
+
 def index(request):
     query_str = request.GET.get('q', init_query)
-    queryset = eval(query_str)
-    sql = str(queryset.query)
-    formatted_sql = highlight_sql(sql)
-    current_dir = os.path.dirname(__file__)
-    models_path = os.path.join(current_dir, 'models.py')
-    with open(models_path, 'r') as f:
-        models_content = f.read()
+    error_message = None
+    formatted_sql = None
+
+    try:
+        queryset = eval(query_str)
+        sql = str(queryset.query)
+        formatted_sql = highlight_sql(sql)
+    except Exception as e:
+        error_message = str(e)
 
     return render(request, 'example/index.html', {
         'query_str': query_str,
         'sql': formatted_sql,
-        'models_content': models_content
+        'models_content': models_content,
+        'error_message': error_message
     })
