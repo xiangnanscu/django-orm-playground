@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Django Query to SQL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .left-panel {
+      flex: 1;
+      padding: 20px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+
+    .right-panel {
+      flex: 1;
+      padding: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin: 10px 0;
+      padding: 10px;
+      font-family: monospace;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .sql-output {
+      margin: 15px 0;
+    }
+
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    pre {
+      margin: 0;
+      border-radius: 4px;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #333;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #444;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <h1>Models 源码</h1>
+      <pre><code class="language-python">{{ models_content }}</code></pre>
+    </div>
+
+    <div class="right-panel">
+      <h1>Django Query to SQL 转换器</h1>
+      <form method="get">
+        <textarea name="q" placeholder="输入Django查询代码...">{{ query_str }}</textarea>
+        <br>
+        <button type="submit">生成SQL</button>
+      </form>
+
+      {% if sql %}
+      <h2>生成的SQL:</h2>
+      <div class="sql-output">
+        <pre><code class="language-sql">{{ sql }}</code></pre>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      hljs.highlightAll();
+    });
+  </script>
+</body>
+
+</html>
