@@ -1,0 +1,21 @@
+{
+  "name": "django-hello-world",
+  "version": "1.0.0",
+  "description": "Django Hello World Project",
+  "scripts": {
+    "dev": "python manage.py runserver",
+    "migrate": "python manage.py migrate",
+    "makemigrations": "python manage.py makemigrations",
+    "createsuperuser": "python manage.py createsuperuser",
+    "shell": "python manage.py shell",
+    "test": "python manage.py test",
+    "collectstatic": "python manage.py collectstatic",
+    "check": "python manage.py check",
+    "commit": "git add . && git commit -am ",
+    "c": "yarn commit",
+    "push": "yarn commit",
+    "g": "yarn commit",
+    "postg": "yarn postpush",
+    "postpush": "git push origin"
+  }
+}

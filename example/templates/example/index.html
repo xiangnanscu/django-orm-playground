@@ -8,6 +8,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
   <style>
     body {
       margin: 0;
@@ -91,6 +92,97 @@
       cursor: pointer;
       width: 100%;
       max-width: 200px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .history-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .history-content {
+      position: relative;
+      background: white;
+      margin: 10% auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      border-radius: 8px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      margin: 5px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .history-item:hover {
+      background: #f0f0f0;
+    }
+
+    .history-item-content {
+      flex: 1;
+      padding-right: 30px;
+    }
+
+    .delete-btn {
+      background: none;
+      color: #dc3545;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      opacity: 0.6;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+    }
+
+    .delete-btn:hover {
+      opacity: 1;
+      background: rgba(220, 53, 69, 0.1);
+    }
+
+    .delete-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    .close-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
     }
 
     button:hover {
@@ -188,8 +280,21 @@
       <form method="get">
         <textarea name="q" placeholder="Enter Django query code...">{{ query_str }}</textarea>
         <br>
-        <button type="submit">Generate SQL</button>
+        <div class="button-container">
+          <button type="submit">Generate SQL</button>
+          <div style="cursor: pointer;" onclick="toggleHistory()">
+            <i data-feather="clock"></i>
+          </div>
+        </div>
       </form>
+
+      <div id="historyModal" class="history-modal">
+        <div class="history-content">
+          <span class="close-btn" onclick="toggleHistory()">&times;</span>
+          <h2>查询历史</h2>
+          <div id="historyList"></div>
+        </div>
+      </div>
 
       {% if sql %}
       <h2>Generated SQL:</h2>
@@ -203,7 +308,133 @@
   <script>
     document.addEventListener('DOMContentLoaded', (event) => {
       hljs.highlightAll();
+      feather.replace();  // 初始化 Feather Icons
+
+      // 如果当前有查询和SQL，保存到历史记录中
+      const queryStr = document.querySelector('textarea[name="q"]').value;
+      const sqlElement = document.querySelector('.language-sql');
+      if (queryStr && sqlElement) {
+        saveToHistory(queryStr, sqlElement.textContent);
+      }
     });
+
+    function saveToHistory(query, sql) {
+      let history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+      // 避免重复记录
+      const existingIndex = history.findIndex(item => item.query === query);
+      if (existingIndex !== -1) {
+        // 如果存在相同查询，更新它
+        history.splice(existingIndex, 1);
+      }
+      // 添加新记录到开头
+      history.unshift({ query, sql, timestamp: new Date().toISOString() });
+      // 只保留最近的50条记录
+      if (history.length > 100) {
+        history = history.slice(0, 50);
+      }
+      localStorage.setItem('queryHistory', JSON.stringify(history));
+    }
+
+    function toggleHistory() {
+      const modal = document.getElementById('historyModal');
+      if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+      } else {
+        modal.style.display = 'block';
+        displayHistory();
+      }
+    }
+
+    function displayHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+
+      historyList.innerHTML = history.map((item, index) => {
+        // 对查询字符串进行双重编码以避免特殊字符问题
+        const encodedQuery = encodeURIComponent(item.query).replace(/'/g, '%27');
+        const encodedSql = encodeURIComponent(item.sql).replace(/'/g, '%27');
+        return `
+          <div class="history-item">
+            <div class="history-item-content" onclick="loadQueryAndSql('${encodedQuery}', '${encodedSql}')">
+              <pre><code class="language-python">${escapeHtml(item.query)}</code></pre>
+            </div>
+            <button class="delete-btn" onclick="deleteHistoryItem(${index}); event.stopPropagation();" title="删除">
+              <svg viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      hljs.highlightAll();
+    }
+
+    function deleteHistoryItem(index) {
+      let history = JSON.parse(localStorage.getItem('queryHistory') || '[]');
+      console.log(history);
+      // 删除指定索引的项目
+      history.splice(index, 1);
+      console.log(history);
+      // 保存更新后的历史记录
+      localStorage.setItem('queryHistory', JSON.stringify(history));
+      // 如果历史记录为空，关闭模态框
+      if (history.length === 0) {
+        toggleHistory();
+      } else {
+        // 否则刷新显示
+        displayHistory();
+      }
+    }
+
+    // HTML转义函数
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function loadQueryAndSql(query, sql) {
+      try {
+        const decodedQuery = decodeURIComponent(query);
+        const decodedSql = decodeURIComponent(sql);
+        document.querySelector('textarea[name="q"]').value = decodedQuery;
+
+        // 更新 SQL 显示
+        const sqlContainer = document.querySelector('.sql-output');
+        if (!sqlContainer) {
+          // 如果 SQL 容器不存在，创建一个新的
+          const h2 = document.createElement('h2');
+          h2.textContent = 'Generated SQL:';
+          const newSqlContainer = document.createElement('div');
+          newSqlContainer.className = 'sql-output';
+          newSqlContainer.innerHTML = `<pre><code class="language-sql">${escapeHtml(decodedSql)}</code></pre>`;
+
+          const rightPanel = document.querySelector('.right-panel');
+          rightPanel.appendChild(h2);
+          rightPanel.appendChild(newSqlContainer);
+        } else {
+          // 如果 SQL 容器已存在，直接更新内容
+          sqlContainer.innerHTML = `<pre><code class="language-sql">${escapeHtml(decodedSql)}</code></pre>`;
+        }
+
+        hljs.highlightAll();
+        toggleHistory();
+      } catch (e) {
+        console.error('Error loading query and SQL:', e);
+      }
+    }
+
+    // 点击模态框外部关闭
+    window.onclick = function (event) {
+      const modal = document.getElementById('historyModal');
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
+    }
   </script>
 </body>
 
