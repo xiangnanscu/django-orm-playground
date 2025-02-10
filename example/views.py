@@ -14,8 +14,9 @@ def highlight_sql(sql):
 
     return mark_safe(sql)
 
+init_query = "Author.objects.annotate(article_count=Count('articles')).filter(article_count__gt=2)"
 def index(request):
-    query_str = request.GET.get('q', "Author.objects.annotate(article_count=Count('articles')).filter(article_count__gt=2)")
+    query_str = request.GET.get('q', init_query)
     queryset = eval(query_str)
     sql = str(queryset.query)
     # 格式化并高亮SQL
