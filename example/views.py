@@ -13,9 +13,7 @@ def highlight_sql(sql):
     return mark_safe(sql)
 
 init_query = '''
-Blog.objects.alias(entries=Count("entry")).annotate(
-    entries=F("entries"),
-).aggregate(Sum("entries"))
+Blog.objects.alias(entries=Count("entry")).annotate(entries=F("entries"))
 '''
 def index(request):
     query_str = request.GET.get('q', init_query)
