@@ -4,8 +4,8 @@
   "description": "Django Hello World Project",
   "scripts": {
     "dev": "python manage.py runserver",
-    "migrate": "python manage.py migrate",
-    "makemigrations": "python manage.py makemigrations",
+    "m": "python manage.py migrate",
+    "mm": "python manage.py makemigrations",
     "createsuperuser": "python manage.py createsuperuser",
     "shell": "python manage.py shell",
     "test": "python manage.py test",
