@@ -143,6 +143,22 @@
     .history-item-content {
       flex: 1;
       padding-right: 30px;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+      word-break: break-all;
+    }
+
+    .history-item-content pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+
+    .history-item-content code {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 100%;
     }
 
     .delete-btn {
@@ -193,6 +209,9 @@
       margin: 0;
       border-radius: 4px;
       overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      max-width: 100%;
     }
 
     h1 {
