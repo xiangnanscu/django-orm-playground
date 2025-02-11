@@ -345,6 +345,12 @@
     <div class="right-panel">
       <h1>Django Query to SQL Converter</h1>
       <form method="get">
+        <div style="margin-bottom: 10px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" name="exec_mode" value="true" {% if exec_mode %}checked{% endif %}>
+            <span title="Exec Mode (Execute code directly, must set sql variable manually)">Exec Mode</span>
+          </label>
+        </div>
         <textarea name="q" placeholder="Enter Django query code...">{{ query_str }}</textarea>
         <br>
         <div class="button-container">
