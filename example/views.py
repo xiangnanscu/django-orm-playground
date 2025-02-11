@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.db.models import Count, Sum, Avg, Min, Max, F, Q, Value, ExpressionWrapper, Case, When
+from django.db.models import Count, Sum, Avg, Min, Max, F, Q, Value, ExpressionWrapper, Case, When, CharField
 from django.db.models.functions import Coalesce, Extract, Now, Concat, Cast
 from django.http import HttpResponse
 from .models import *
@@ -33,7 +33,12 @@ def index(request):
             exec(query_str, globals(), local_vars)
             if 'sql' not in local_vars:
                 raise Exception("In exec mode, code must set the 'sql' variable")
-            sql = str(local_vars['sql'])
+
+            # 检查sql的类型，如果是queryset则获取其query属性
+            if hasattr(local_vars['sql'], 'query'):
+                sql = str(local_vars['sql'].query)
+            else:
+                sql = str(local_vars['sql'])
         else:
             # In eval mode, evaluate expression and expect to get a queryset
             queryset = eval(query_str, globals())
