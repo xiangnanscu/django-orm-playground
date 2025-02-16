@@ -8,6 +8,7 @@ from django.db import models
 class Blog(models.Model):
     name = models.CharField(max_length=100)
     tagline = models.TextField()
+    data = models.JSONField()
 
     def __str__(self):
         return self.name
@@ -23,7 +24,8 @@ class Author(models.Model):
 
 
 class Entry(models.Model):
-    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='entries', related_query_name='entry')
+    reposted_blog = models.ForeignKey(Blog, on_delete=models.CASCADE, null=True, blank=True, related_name='reposted_entries', related_query_name='reposted_entry')
     headline = models.CharField(max_length=255)
     body_text = models.TextField()
     pub_date = models.DateField()
@@ -35,6 +37,11 @@ class Entry(models.Model):
 
     def __str__(self):
         return self.headline
+
+class ViewLog(models.Model):
+    entry = models.ForeignKey(Entry, on_delete=models.CASCADE, related_query_name='view_log')
+    ctime = models.DateTimeField(auto_now_add=True)
+
 
 class Publisher(models.Model):
     name = models.CharField(max_length=300)

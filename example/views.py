@@ -43,6 +43,7 @@ def index(request):
             # In eval mode, evaluate expression and expect to get a queryset
             queryset = eval(query_str, globals())
             sql = str(queryset.query)
+            print(sql)
         formatted_sql = highlight_sql(sql)
     except Exception as e:
         error_message = str(e)

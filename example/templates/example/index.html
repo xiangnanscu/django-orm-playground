@@ -425,9 +425,9 @@
       // Add new record to the beginning
       history.unshift({ query, sql, timestamp: new Date().toISOString() });
       // Keep only the most recent 50 records
-      if (history.length > 100) {
-        history = history.slice(0, 50);
-      }
+      // if (history.length > 100) {
+      //   history = history.slice(0, 50);
+      // }
       localStorage.setItem('queryHistory', JSON.stringify(history));
     }
 

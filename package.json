@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Django Hello World Project",
   "scripts": {
-    "dev": "python manage.py runserver",
+    "dev": "python manage.py runserver 8001",
     "m": "python manage.py migrate",
     "mm": "python manage.py makemigrations",
     "createsuperuser": "python manage.py createsuperuser",
